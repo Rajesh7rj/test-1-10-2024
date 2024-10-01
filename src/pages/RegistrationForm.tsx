@@ -23,16 +23,16 @@ import Header from '../components/Header';
 
 
 interface RegistrationFormData {
+  kidsAges?: (number | null | undefined)[] | null | undefined;
+  message?: string;
   firstName: string;
   lastName: string;
   email: string;
   phone: string;
-  attending: 'Yes' | "Maybe" |'No'; 
+  attending: 'Yes' | 'Maybe' | 'No'; 
   adults: number;
   kids: number;
-  kidsAges: (number | undefined)[];
-  message?: string;
-  profileImage: FileList;
+  profileImage: FileList | string | any;
 }
 
 const formSchema = Yup.object().shape({
@@ -40,12 +40,14 @@ const formSchema = Yup.object().shape({
   lastName: Yup.string().required('Last name is required'),
   email: Yup.string().email('Invalid email format').required('Email is required'),
   phone: Yup.string().required('Phone number is required'),
-  attending: Yup.string().required('Attendance selection is required'),
+  attending: Yup
+  .string()
+  .oneOf(['Yes', 'Maybe', 'No']) 
+  .required('Attending status is required'),
   adults: Yup.number().min(0).max(5).required('Select number of adults'),
   kids: Yup.number().min(0).max(5).required('Select number of kids'),
-  kidsAges: Yup.array()
-    .of(Yup.number().min(0).max(17).nullable())
-    .nullable(),
+  kidsAges:  Yup.array()
+  .of(Yup.number().nullable()).nullable(),
   profileImage: Yup.mixed()
     .required('Profile image is required'),
   message: Yup.string().optional(),
@@ -54,12 +56,20 @@ const formSchema = Yup.object().shape({
 const RegistrationForm: React.FC = () => {
   const dispatch = useDispatch();
   const participantsList = useSelector(participantsListData);
-  console.log("data", participantsList)
+ 
   const { control, handleSubmit, watch } = useForm<RegistrationFormData>({
     resolver: yupResolver(formSchema),
     defaultValues: {
-      kidsAges: Array(5).fill(undefined),
-      attending: 'Yes', 
+      firstName: '',          
+      lastName: '',           
+      email: '',              
+      phone: '',              
+      attending: 'Yes',       
+      adults: 1,              
+      kids: 0,                
+      kidsAges: Array(5).fill(null),
+      message: '',            
+      profileImage: null   
     },
   });
 
@@ -195,7 +205,7 @@ const RegistrationForm: React.FC = () => {
       {[...Array(kidsCount)].map((_, index) => (
         <Controller
           key={index}
-          name={`kidsAges[${index}]`}
+          name={`kidsAges.${index}`}
           control={control}
           render={({ field, fieldState }) => (
             <FormControl fullWidth margin="normal" error={!!fieldState.error}>

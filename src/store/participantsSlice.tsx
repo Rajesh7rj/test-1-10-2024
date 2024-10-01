@@ -2,16 +2,16 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from './store';
 
 interface Participant {
+  kidsAges?: (number | null | undefined)[] | null | undefined;
+  message?: string;
   firstName: string;
   lastName: string;
   email: string;
   phone: string;
-  attending: 'Yes' | 'No'; 
+  attending: 'Yes' | 'Maybe' | 'No'; 
   adults: number;
   kids: number;
-  kidsAges: (number | undefined)[];
-  message?: string;
-  profileImage: FileList;
+  profileImage: FileList | string | any;
 }
 
 interface ParticipantsState {
